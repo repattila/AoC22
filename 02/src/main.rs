@@ -17,7 +17,8 @@ impl Game {
         let mut line_chars = line.chars();
         let op_sign_char = line_chars.next().unwrap();
         line_chars.next();
-        let my_sign_char = line_chars.next().unwrap();
+        //let my_sign_char = line_chars.next().unwrap();
+        let suggested_outcome = line_chars.next().unwrap();
 
         let op_sign: Sign = match op_sign_char {
             'A' => Sign::Rock,
@@ -26,10 +27,38 @@ impl Game {
             _ => Sign::NA
         };
 
+        /* Part 1
         let my_sign: Sign = match my_sign_char {
             'X' => Sign::Rock,
             'Y' => Sign::Paper,
             'Z' => Sign::Scissors,
+            _ => Sign::NA
+        };
+        */
+
+        // Part 2
+        let my_sign: Sign = match suggested_outcome {
+            // to lose
+            'X' => match op_sign {
+                Sign::Rock => Sign::Scissors,
+                Sign::Paper => Sign::Rock,
+                Sign::Scissors => Sign::Paper,
+                Sign::NA => Sign::NA
+            },
+            // to draw
+            'Y' => match op_sign {
+                Sign::Rock => Sign::Rock,
+                Sign::Paper => Sign::Paper,
+                Sign::Scissors => Sign::Scissors,
+                Sign::NA => Sign::NA
+            },
+            // to win
+            'Z' => match op_sign {
+                Sign::Rock => Sign::Paper,
+                Sign::Paper => Sign::Scissors,
+                Sign::Scissors => Sign::Rock,
+                Sign::NA => Sign::NA
+            },
             _ => Sign::NA
         };
 
