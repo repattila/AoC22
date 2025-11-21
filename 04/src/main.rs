@@ -7,6 +7,10 @@ impl Range {
         self.0 <= other.0 && self.1 >= other.1
     }
 
+    fn overlaps(&self, other: &Range) -> bool {
+        self.0 <= other.0 && self.1 >= other.0 || self.0 >= other.0 && self.0 <= other.1
+    }
+
     fn new(p: &str) -> Range {
         let separator_pos = p.find('-').unwrap();
         Range(*(&p[..separator_pos].parse::<u8>().unwrap()), *(&p[separator_pos+1..].parse::<u8>().unwrap()))
@@ -17,7 +21,9 @@ fn process_line(line: &String) -> u8 {
     let separator_pos = line.find(',').unwrap();
     let r1 = Range::new(&line[..separator_pos]);
     let r2 = Range::new(&line[separator_pos+1..]);
-    if r1.contains(&r2) || r2.contains(&r1) {
+    // Part 1
+    //if r1.contains(&r2) || r2.contains(&r1) {
+    if r1.overlaps(&r2) {
         1
     } else {
         0
