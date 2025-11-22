@@ -27,7 +27,10 @@ fn main() {
                 let from = parts[3].parse::<usize>().unwrap() - 1;
                 let to = parts[5].parse::<usize>().unwrap() - 1;
 
-                columns[to] = format!("{}{}",&columns[from][..crate_count].chars().rev().collect::<String>(),columns[to]);
+                // Part 1
+                //columns[to] = format!("{}{}",&columns[from][..crate_count].chars().rev().collect::<String>(),columns[to]);
+                // Part 2
+                columns[to] = format!("{}{}",&columns[from][..crate_count],columns[to]);
                 columns[from] = String::from(&columns[from][crate_count..]);
 
                 println!("{:?}", columns)
