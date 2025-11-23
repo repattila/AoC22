@@ -1,17 +1,21 @@
 use aoc22_shared::*;
 
+fn insert_next_char(window: &mut[char; 4], next_char: char) {
+    for i in 0..3 {
+        window[i] = window[i+1]
+    }
+    window[3] = next_char;
+}
+
 fn main() {
     if let Ok(lines) = read_lines("res/input.txt") {
         let line = lines.map_while(Result::ok).last().unwrap_or_default();
 
-        let mut window: [char; 4] = [' ', ' ', ' ', ' '];
+        let mut window: [char; 4] = [' '; 4];
         let mut pos: usize = 0;
 
         for ch in line.chars() {
-            window[0] = window[1];
-            window[1] = window[2];
-            window[2] = window[3];
-            window[3] = ch;
+            insert_next_char(&mut window, ch);
 
             pos += 1;
             
