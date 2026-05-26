@@ -15,13 +15,14 @@ struct File {
 
 fn get_sizes(curr_dir_ind: usize, directories: &mut Vec<Directory>, files: &mut Vec<File>, dirs_size: &mut HashMap<usize, u32>) {
     let mut curr_dir = directories.get(curr_dir_ind).unwrap();
-    if curr_dir.children_dir_ind.is_empty() {
-        for file_ind in curr_dir.children_file_ind.values() {
-            let curr_file_size = files.get(*file_ind).unwrap().size;
+    
+    for file_ind in curr_dir.children_file_ind.values() {
+        let curr_file_size = files.get(*file_ind).unwrap().size;
 
-            *dirs_size.entry(curr_dir_ind).or_insert(0) += curr_file_size;
-        }
-    } else {
+        *dirs_size.entry(curr_dir_ind).or_insert(0) += curr_file_size;
+    }
+    
+    if !curr_dir.children_dir_ind.is_empty() {
         let child_dirs_ind: Vec<usize> = curr_dir.children_dir_ind.values().map(|i| i.clone()).collect();
 
         for dir_ind in child_dirs_ind.iter() {
@@ -97,6 +98,15 @@ fn main() {
         let mut dirs_size: HashMap<usize, u32> = HashMap::new();
         get_sizes(0, &mut directories, &mut files, &mut dirs_size);
 
-        println!("{:?}", dirs_size)
+        println!("{:?}", dirs_size);
+
+        let mut total_size_under_100000 = 0;
+        for size in dirs_size.values() {
+            if *size <= 100000 {
+                total_size_under_100000 += *size;
+            }
+        }
+
+        println!("{total_size_under_100000}");
     }
 }
