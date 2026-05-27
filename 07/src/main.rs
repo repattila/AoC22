@@ -1,5 +1,5 @@
 use aoc22_shared::*;
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap};
 
 struct Directory {
     name: String,
@@ -14,7 +14,7 @@ struct File {
 }
 
 fn get_sizes(curr_dir_ind: usize, directories: &mut Vec<Directory>, files: &mut Vec<File>, dirs_size: &mut HashMap<usize, u32>) {
-    let mut curr_dir = directories.get(curr_dir_ind).unwrap();
+    let curr_dir = directories.get(curr_dir_ind).unwrap();
     
     for file_ind in curr_dir.children_file_ind.values() {
         let curr_file_size = files.get(*file_ind).unwrap().size;
@@ -108,5 +108,22 @@ fn main() {
         }
 
         println!("{total_size_under_100000}");
+
+        let file_system_size = 70000000;
+        let free_space = file_system_size - dirs_size.get(&0).unwrap();
+        let to_free = 30000000 - free_space;
+
+        println!("We have {free_space} free space, so need to free up {to_free}");
+        let mut curr_to_be_freed = file_system_size;
+        for size in dirs_size.values() {
+            if *size >= to_free {
+                if *size < curr_to_be_freed {
+                    curr_to_be_freed = *size;
+                }
+            }
+        }
+
+        println!("Smallest dir to delete to free up enough space: {curr_to_be_freed}");
+
     }
 }
