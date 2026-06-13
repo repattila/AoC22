@@ -83,7 +83,19 @@ fn main() {
         }
     }
 
-    println!("{visible_count} trees are visible.")
+    println!("{visible_count} trees are visible.");
+
+    let mut max_scenic_score: u32 = 0;
+    for r in 0..trees.len() {
+        for c in 0..trees[r].len() {
+            let curr_scenic_score = get_scenic_score(r, c, &trees);
+            if curr_scenic_score > max_scenic_score {
+                max_scenic_score = curr_scenic_score;
+            }
+        }
+    }
+
+    println!("Max scenic score: {max_scenic_score}");
 }
 
 fn update_tree(tree: &mut (bool, u32), max_height: &mut Option<u32>) {
@@ -96,4 +108,56 @@ fn update_tree(tree: &mut (bool, u32), max_height: &mut Option<u32>) {
         tree.0 = true;
         *max_height = Some(tree.1);
     }
+}
+
+fn get_scenic_score(tree_row: usize, tree_col: usize, trees: &Vec<Vec<(bool, u32)>>) -> u32 {
+    let curr_height = trees[tree_row][tree_col].1;
+
+    let mut visible_left: u32 = 0;
+    if tree_col > 0 {
+        for c in (0..tree_col).rev() {
+            visible_left += 1;
+
+            if trees[tree_row][c].1 >= curr_height {
+                break;
+            }
+        }
+    }
+
+    let mut visible_right: u32 = 0;
+    if tree_col < trees[tree_row].len() - 1 {
+        for c in tree_col + 1..trees[tree_row].len() {
+            visible_right += 1;
+
+            if trees[tree_row][c].1 >= curr_height {
+                break;
+            }
+        }
+    }
+
+    let mut visible_up: u32 = 0;
+    if tree_row > 0 {
+        for r in (0..tree_row).rev() {
+            visible_up += 1;
+
+            if trees[r][tree_col].1 >= curr_height {
+                break;
+            }
+        }
+    }
+
+    let mut visible_down: u32 = 0;
+    if tree_row < trees.len() - 1 {
+        for r in tree_row + 1..trees.len() {
+            visible_down += 1;
+
+            if trees[r][tree_col].1 >= curr_height {
+                break;
+            }
+        }
+    }
+
+    println!("Row: {tree_row}, col: {tree_col} scores: {visible_up}, {visible_down}, {visible_left}, {visible_right}");
+
+    return visible_up * visible_down * visible_left * visible_right;
 }
