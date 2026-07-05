@@ -4,7 +4,8 @@ fn main() {
     if let Ok(lines) = read_lines("res/input.txt") {
         let mut x_reg: i32 = 1;
         let mut prev_x_reg: i32 = 1;
-        let mut cycle_counter: u32 = 1;
+        let mut prev_cycle_counter: usize;
+        let mut cycle_counter: usize = 1;
 
         let mut got_20: bool = false;
         let mut x_at_20: i32 = 0;
@@ -19,24 +20,30 @@ fn main() {
         let mut got_220: bool = false;
         let mut x_at_220: i32 = 0;
 
+        let mut screen = [[false; 40]; 6];
+
         for line in lines.map_while(Result::ok) {
             let mut split_line = line.split(" ");
+
+            prev_cycle_counter = cycle_counter;
+            prev_x_reg = x_reg;
 
             match split_line.next() {
                 Some("noop") => {
                     cycle_counter += 1;
+                    
                 }
                 Some("addx") => {
                     let change = split_line.next().unwrap().parse::<i32>().unwrap();
                     
                     cycle_counter += 2;
-                    prev_x_reg = x_reg;
                     x_reg += change;
                 }
-                Some(c) => panic!("Unexpected direction: {c}"),
+                Some(c) => panic!("Unexpected command: {c}"),
                 None => panic!("Command line doesn't have a command")
             }
 
+            // Part 1
             if !got_20 {
                 if cycle_counter == 20 {
                     x_at_20 = x_reg;
@@ -86,6 +93,16 @@ fn main() {
                     got_220 = true;
                 }
             }
+
+            // Part 2
+            for curr_cycle in prev_cycle_counter..cycle_counter {
+                println!("Curr cycle: {curr_cycle}");
+
+                let draw_row = (curr_cycle - 1) / 40;
+                let draw_pos = (curr_cycle - 1) % 40;
+
+                screen[draw_row][draw_pos] = draw_pos == prev_x_reg as usize || draw_pos == (prev_x_reg - 1) as usize || draw_pos == (prev_x_reg + 1) as usize;
+            }
         }
 
         println!("X at 20 is {x_at_20}");
@@ -95,6 +112,17 @@ fn main() {
         println!("X at 180 is {x_at_180}");
         println!("X at 220 is {x_at_220}");
 
-        println!("Signal strength: {}", x_at_20 * 20 + x_at_60 * 60 + x_at_100 * 100 + x_at_140 * 140 + x_at_180 * 180 + x_at_220 * 220)
+        println!("Signal strength: {}", x_at_20 * 20 + x_at_60 * 60 + x_at_100 * 100 + x_at_140 * 140 + x_at_180 * 180 + x_at_220 * 220);
+
+        for row in screen {
+            for pixel in row {
+                if pixel {
+                    print!("#");
+                } else {
+                    print!(".");
+                }
+            }
+            print!("\n");
+        }
     }
 }
