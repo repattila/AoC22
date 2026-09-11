@@ -9,6 +9,7 @@ fn main() {
     let mut field: Vec<Vec<u32>> = Vec::new();
     let mut start: (usize, usize) = (0, 0);
     let mut end: (usize, usize) = (0, 0);
+    let mut a_fields: Vec<(usize, usize)> = Vec::new();
 
     if let Ok(lines) = read_lines("res/input.txt") {
         for (r, line) in lines.map_while(Result::ok).enumerate() {
@@ -23,6 +24,10 @@ fn main() {
                     row.push(99);
 
                     start = (r, c);
+                } else if val == 'a' {
+                    a_fields.push((r, c));
+
+                    row.push(1);
                 } else {
                     row.push(val as u32 - 'a' as u32 + 1)
                 }
@@ -80,14 +85,34 @@ fn main() {
     println!("{:?}", graph);
     println!("{:?}", start);
     println!("{:?}", end);
+    println!("{:?}", a_fields);
 
-    // BFS
+    let mut shortest_path_len: Option<usize> = None;
+    for a_field in a_fields {
+        let curr_shortest_path_len = bfs(&a_field, &end, &graph);
+        if curr_shortest_path_len > 0 {
+            println!("Current shortest path: {}", curr_shortest_path_len);
 
+            if let Some(comp) = shortest_path_len {
+                if comp > curr_shortest_path_len {
+                    shortest_path_len = Some(curr_shortest_path_len);    
+                }
+            } else {
+                shortest_path_len = Some(curr_shortest_path_len);
+            }
+        }
+    }
+
+    println!("The length of the shortest path: {}", shortest_path_len.unwrap());    
+
+}
+
+fn bfs(start: &(usize, usize), end: &(usize, usize), graph: &HashMap<(usize, usize), Vec<(usize, usize)>>) -> usize {
     let mut visited: HashSet<(usize, usize)> = HashSet::new();
-    visited.insert(start);
+    visited.insert(start.clone());
 
     let mut paths: VecDeque<((usize, usize), Vec<(usize, usize)>)> = VecDeque::new();
-    paths.push_back((start, vec![start]));
+    paths.push_back((start.clone(), vec![start.clone()]));
 
     while let Some(curr_path) = paths.pop_front() {
         if let Some(neighbors) = graph.get(&curr_path.0) {
@@ -95,10 +120,10 @@ fn main() {
                 if visited.contains(neighbor) {
                     continue;
                 } else {
-                    if *neighbor == end {
-                        println!("The length of the shortest route from start to end: {}", curr_path.1.len());
-                        println!("{:?}", curr_path.1);
-                        exit(0);
+                    if *neighbor == *end {
+                        //println!("{:?}", curr_path.1);
+
+                        return curr_path.1.len();
                     } else {
                         visited.insert(neighbor.clone());
                         let mut new_path = curr_path.1.clone();
@@ -110,6 +135,5 @@ fn main() {
         }
     }
 
-    println!("No route from start to end!")
-
+    return 0;
 }
