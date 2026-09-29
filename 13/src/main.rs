@@ -2,12 +2,14 @@ use aoc22_shared::*;
 use serde_json::Value;
 
 fn main() {
-    if let Ok(lines) = read_lines("res/example1.txt") {
+    if let Ok(lines) = read_lines("res/input.txt") {
         let mut right: Option<Value> = None;
         let mut left: Option<Value> = None;
         let mut pair_index: usize = 1;
         let mut result: usize = 0;
         for line in lines.map_while(Result::ok) {
+            println!("{line}");
+
             if !line.is_empty() {
                 println!("{line}");
 
@@ -79,17 +81,17 @@ fn compare(left: &Value, right: &Value) -> i8 {
                 if l.0 < rval.len() {
                     res = compare(l.1, rval.get(l.0).unwrap());
                 } else {
-                    return 1;
+                    res = 1;
                 }
             } else {
-                return res;
+                break;
             }
         }
 
-        if lval.len() < rval.len() {
-            return -1;
-        } else {
-            return 0;
+        if res == 0 && lval.len() < rval.len() {
+            res = -1;
         }
+
+        return res;
     }
 }
