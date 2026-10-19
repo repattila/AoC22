@@ -3,7 +3,7 @@ use aoc22_shared::*;
 fn main() {
     let mut field: Vec<Vec<bool>> = vec![vec![false; 200]; 200];
 
-    if let Ok(lines) = read_lines("res/example1.txt") {
+    if let Ok(lines) = read_lines("res/input.txt") {
         for line in lines.map_while(Result::ok) {
             let mut start: Option<(usize, usize)> = None;
             for point in line.split(" -> ") {
@@ -43,15 +43,60 @@ fn main() {
             }
         }
 
-        for r in field {
-            for p in r {
-                if p {
-                    print!("#")
+        print_field(&field);
+
+        let sand_start_pos: (usize, usize) = (100, 0);
+        let mut sand_count = 0;
+        let mut need_more_sand = true;
+        while need_more_sand {
+            sand_count += 1;
+            let mut sand_curr_pos: (usize, usize) = sand_start_pos;
+            let mut sand_moving = true;
+            while sand_moving {
+                // try next move
+                if sand_curr_pos.1 < 199 {
+                    if !field[sand_curr_pos.1 + 1][sand_curr_pos.0] {
+                        // try down
+
+                        sand_curr_pos = (sand_curr_pos.0, sand_curr_pos.1 + 1)
+
+                    } else if sand_curr_pos.0 > 0 && !field[sand_curr_pos.1 + 1][sand_curr_pos.0 - 1]{
+                        // try left
+
+                        sand_curr_pos = (sand_curr_pos.0 - 1, sand_curr_pos.1 + 1)
+
+                    } else if sand_curr_pos.0 < 199 && !field[sand_curr_pos.1 + 1][sand_curr_pos.0 + 1]{
+                        // try right
+
+                        sand_curr_pos = (sand_curr_pos.0 + 1, sand_curr_pos.1 + 1)
+                    } else {
+                        sand_moving = false;
+                    }
                 } else {
-                    print!(".")
+                    sand_moving = false;
+                    need_more_sand = false;
                 }
             }
-            print!("\n")
+
+            field[sand_curr_pos.1][sand_curr_pos.0] = true;
         }
+
+        print_field(&field);
+
+        println!("Sand particles generated: {sand_count}");
+
+    }
+}
+
+fn print_field(field: &Vec<Vec<bool>>) {
+    for r in field {
+        for p in r {
+            if *p {
+                print!("#")
+            } else {
+                print!(".")
+            }
+        }
+        print!("\n")
     }
 }
