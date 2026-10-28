@@ -4,12 +4,24 @@ use aoc22_shared::*;
 struct Sensor {
     pos_x: i32,
     pos_y: i32,
-    closest_b_dist_2: i32
+    closest_b_dist: i32
+}
+
+impl Sensor {
+    fn in_reach(&self, x: i32, y: i32) -> bool {
+        let distance = (self.pos_x - x).abs() + (self.pos_y - y).abs();
+
+        return distance <= self.closest_b_dist;
+    }
 }
 
 fn main() {
-    if let Ok(lines) = read_lines("res/example1.txt") {
+    if let Ok(lines) = read_lines("res/input.txt") {
         let mut sensors: Vec<Sensor> = Vec::new();
+        let mut beacons: Vec<(i32, i32)> = Vec::new();
+
+        let mut left_end: Option<i32> = None;
+        let mut right_end: Option<i32> = None;
         
         for line in lines.map_while(Result::ok) {
             let mut sensor_x: i32 = 0;
@@ -43,11 +55,51 @@ fn main() {
                 }
             }
 
-            let distance = (closest_beacon_x - sensor_x).pow(2) + (closest_beacon_y - sensor_y).pow(2);
+            beacons.push((closest_beacon_x, closest_beacon_y));
 
-            sensors.push(Sensor{pos_x: sensor_x, pos_y: sensor_y, closest_b_dist_2: distance});
+            let distance = (closest_beacon_x - sensor_x).abs() + (closest_beacon_y - sensor_y).abs();
+
+            sensors.push(Sensor{pos_x: sensor_x, pos_y: sensor_y, closest_b_dist: distance});
+
+            let sensor_left_reach = sensor_y - distance - 1;
+            let sensor_right_reach = sensor_y + distance + 1;
+
+            match left_end {
+                None => {
+                    left_end = Some(sensor_left_reach);
+                },
+                Some(val) => {
+                    if sensor_left_reach < val {
+                        left_end = Some(sensor_left_reach);
+                    }
+                }
+            }
+            match right_end {
+                None => {
+                    right_end = Some(sensor_right_reach);
+                },
+                Some(val) => {
+                    if sensor_right_reach > val {
+                        right_end = Some(sensor_right_reach);
+                    }
+                }
+            }
         }
 
         println!("{:?}", sensors);
+
+        let mut fields_in_reach: usize = 0;
+
+        let y = 2000000;
+        for x in (left_end.unwrap()..=right_end.unwrap()) {
+            for sensor in &sensors {
+                if sensor.in_reach(x, y) && !beacons.contains(&(x, y)) {
+                    fields_in_reach += 1;
+                    break;
+                }
+            }
+        }
+
+        println!("Number of fields that can't have a beacon: {fields_in_reach} in row: {y}");
     }
 }
